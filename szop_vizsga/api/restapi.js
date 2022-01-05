@@ -1,10 +1,10 @@
 var http = require("http");
 var express = require('express');
-var app = express();
+const app = express();
 var mysql      = require('mysql');
 var bodyParser = require('body-parser');
-const swaggerUI = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
+
+const swaggerUI = require("swagger-ui-express"),swaggerDocument = require('./openapi.json');
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ?? 3000;
@@ -15,7 +15,7 @@ const options = {
     info: {
       title: "MotoGP API",
       version: "1.0.0",
-      description: "The documentation of the NodeJS API",
+      description: "The documentation of the MotoGP API",
     },
     servers: [
       {
@@ -26,10 +26,9 @@ const options = {
   apis: ["./*.js"],
 };
 
-const specs = swaggerJsDoc(options);
 
-
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+//app.get("./swagger.json", (req, res) => res.json(specs))
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 
 var connection = mysql.createConnection({
@@ -43,6 +42,8 @@ connection.connect(function (err) {
   if (err) throw err;
   console.log("A csatlakozás sikerült...");
 });
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -58,128 +59,18 @@ var server = app.listen(3000,  "127.0.0.1", function () {
 
 });
 
-/*
-@swagger
-components:
-  securitySchemes:
-    BasicAuth:
-      type: http
-      scheme: basic
-  schemas:
-    Results:
-      type: object
-      required:
-        - raceName
-        - raceWinner
-        - raceConstructor
-      properties:
-        id:
-          type: integer
-          description: The auto-generated id of the event
-        raceName:
-          type: string
-          description: The name of the event
-        raceWinner:
-          type: string
-          description: The winner of the event
-        raceConstructor:
-          type: string
-          description: The winners team of the event
-      example:
-        id: 2
-        name: Tissot Grand Prix of Doha
-        salary: Fabio Quartararo
-        age: Monster Energy Yamaha MotoGP
-  Users:
-    type: object
-    required:
-      - userName
-      - userPassword
-    properties:
-      id:
-        type: integer
-        description: The auto-generated id of the event
-      userName:
-        type: string
-        description: The username of the user
-      userPassword:
-        type: string
-        description: The password of the user
-    example:
-      id: 1
-      userName: admin
-      userPassword: admin
-*/
 
-
-
-
-/*
-@swagger
-/motogp:
-    get:
-      description: Returns all The main events of the MotoGP calendar in the database
-      responses:
-        '200':
-          description: Successfully returned a list of Events
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Results'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-*/
 
 app.get('/motogp', function (req, res) {
   console.log("belép")
    connection.query('select * from results', function (error, results, fields) {
 	  if (error) throw error;
-		  //res.end(JSON.stringify(results)); // ez nem megy, a res.end nem állít be megfelelő header-t!!
 		  res.json(results);
       console.log(results);
 
 	});
 });
 
-/*
-@swagger
-/motogp/:login:
-    post:
-      description: POST method for login
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Users'
-      responses:
-        '200':
-          description: Successfully returned a user
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Users'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-*/
 
 app.post('/motogp/:login', function(request, response) {
 	var username = request.body.usernameCode;
@@ -207,31 +98,6 @@ app.post('/motogp/:login', function(request, response) {
   	}
 });
 
-/*
-@swagger
-/motogp
-  post:
-    description: Adds a new Event into the calendar
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Results'
-    responses:
-      '200':
-        description: Successfully created a new event
-      '400':
-        description: Invalid request
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-*/
-
 
 app.post('/motogp', function (req, res) {
    var postData  = req.body;
@@ -242,33 +108,6 @@ app.post('/motogp', function (req, res) {
 });
 
 
-/*
-@swagger
-/motogp
-  put:
-    description: Updates the list of events in the SQL database
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-              type: integer
-              description: Numeric ID of the event to update.
-              example:
-                id: 2
-    responses:
-      '200':
-        description: Successfully created a new event
-      '400':
-        description: Invalid request
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-*/
 
 app.put('/motogp', function (req, res) {
    console.log("belép2")
@@ -287,25 +126,6 @@ app.put('/motogp', function (req, res) {
 	  res.end(JSON.stringify(results));
 	});
 });
-
-/*
-@swagger
-/motogp
-  delete:
-    description: Delete an employee by id
-    responses:
-      '200':
-        description: Successfully removed the event
-      '400':
-        description: Invalid request
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-*/
 
 
 app.delete('/motogp', function (req, res) {

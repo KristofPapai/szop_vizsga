@@ -4,7 +4,7 @@ info:
   title: MotoGP API
   description: The documentation of the NodeJS API
 servers:
-  - url: http://localhost:3100
+  - url: http://localhost:3000
 security:
   - BasicAuth: []
 paths:
