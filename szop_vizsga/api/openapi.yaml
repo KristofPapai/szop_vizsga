@@ -1,0 +1,164 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: MotoGP API
+  description: The documentation of the NodeJS API
+servers:
+  - url: http://localhost:3100
+security:
+  - BasicAuth: []
+paths:
+  /motogp:
+    get:
+      description: Returns all The main events of the MotoGP calendar in the database
+      responses:
+        '200':
+          description: Successfully returned a list of Events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Results'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    post:
+      description: Adds a new Event into the calendar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Results'
+      responses:
+        '200':
+          description: Successfully created a new event
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    put:
+      description: Updates the list of events in the SQL database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                type: integer
+                description: Numeric ID of the event to update.
+                example:
+                  id: 2
+      responses:
+        '200':
+          description: Successfully created a new event
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      description: Delete an employee by id
+      responses:
+        '200':
+          description: Successfully removed the event
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /motogp/:login:
+    post:
+      description: POST method for login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Users'
+      responses:
+        '200':
+          description: Successfully returned a user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    Results:
+      type: object
+      required:
+        - raceName
+        - raceWinner
+        - raceConstructor
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of the event
+        raceName:
+          type: string
+          description: The name of the event
+        raceWinner:
+          type: string
+          description: The winner of the event
+        raceConstructor:
+          type: string
+          description: The winners team of the event
+      example:
+        id: 2
+        name: Tissot Grand Prix of Doha
+        salary: Fabio Quartararo
+        age: Monster Energy Yamaha MotoGP
+    Users:
+      type: object
+      required:
+        - userName
+        - userPassword
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of the event
+        userName:
+          type: string
+          description: The username of the user
+        userPassword:
+          type: string
+          description: The password of the user
+      example:
+        id: 1
+        userName: admin
+        userPassword: admin
