@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3100"
+      "url": "http://localhost:3000"
     }
   ],
   "security": [
@@ -121,7 +121,7 @@
         }
       },
       "delete": {
-        "description": "Delete an event by id",
+        "description": "Delete an employee by id",
         "responses": {
           "200": {
             "description": "Successfully removed the event"
@@ -185,6 +185,19 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/motogp/:logout": {
+      "post": {
+        "description": "POST method for logout",
+        "responses": {
+          "200": {
+            "description": "Successfully loggedout the user"
+          },
+          "400": {
+            "description": "Invalid request"
           }
         }
       }

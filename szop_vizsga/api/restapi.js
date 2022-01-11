@@ -3,6 +3,7 @@ var express = require('express');
 const app = express();
 var mysql      = require('mysql');
 var bodyParser = require('body-parser');
+var loggedin = false;
 
 const swaggerUI = require("swagger-ui-express"),swaggerDocument = require('./openapi.json');
 
@@ -81,9 +82,11 @@ app.post('/motogp/:login', function(request, response) {
           console.log("sikeres bejelentkezés")
           if (results.userIsAdmin = 1) {
             response.send('succes_login_admin');
+            loggedin = true;
           }
           else {
             response.send('succes_login_user');
+            loggedin = true;
           }
 
   			} else {
@@ -129,10 +132,20 @@ app.put('/motogp', function (req, res) {
 
 
 app.delete('/motogp', function (req, res) {
-   console.log('belép delete')
-   var delID = req.body.DelraceID;
-   connection.query('DELETE FROM results WHERE raceID = ?', [delID], function (error, results, fields) {
-	  if (error) throw error;
-	  res.end(JSON.stringify(results));
-	});
+   if (loggedin == true) {
+     console.log('belép delete')
+     var delID = req.body.DelraceID;
+     connection.query('DELETE FROM results WHERE raceID = ?', [delID], function (error, results, fields) {
+      if (error) throw error;
+      res.end(JSON.stringify(results));
+    });
+   }
+   else {
+     console.log("Not logged in");
+     res.send('usernotloggedin');
+   }
+});
+
+app.post('/motogp/:logout', function (req, res) {
+  loggedin = false;
 });

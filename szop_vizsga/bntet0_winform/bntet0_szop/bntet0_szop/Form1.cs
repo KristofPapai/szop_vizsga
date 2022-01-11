@@ -35,14 +35,15 @@ namespace bntet0_szop
             IRestResponse response = client.Execute(request);
             if (response.Content == "succes_login_admin")
             {
-                MessageBox.Show("succesfull admin login");
                 this.Hide();
                 races main = new races();
                 main.ShowDialog();
             }
             else if (response.Content == "succes_login")
             {
-                MessageBox.Show("succesfull login");
+                this.Hide();
+                races main = new races();
+                main.ShowDialog();
             }
             else if (response.Content == "incorrect_credentials")
             {
